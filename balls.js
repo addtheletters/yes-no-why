@@ -14,8 +14,8 @@ $(window).load(function() {
 	accVec=vec.createVec(0, 0);
 	moveInterval=setInterval(function() {active.left+=moveVec.x; 
 										 active.top+=moveVec.y; 
-										 moveVec.x+=accVec.x;
-										 moveVec.y+=accVec.y;
+										 //moveVec.x+=accVec.x;
+										 //moveVec.y+=accVec.y;
 										 canvas.renderAll();}, 10);
 
 	upInt=0;
@@ -25,38 +25,46 @@ $(window).load(function() {
 		var key = e.keyCode;
 		if(key==87) { //w
 			clearInterval(upInt);
-			upInt=setInterval(function() {if (moveVec.y>=-10) {moveVec.y-=.25} else {clearInterval(upInt)} }, 10);
+			accVec.y=-.25;
+			upInt=setInterval(function() {if (moveVec.y>=-10) {moveVec.y+=accVec.y} else {clearInterval(upInt)} }, 10);
 		}	
 		if(key==83) { //s
 			clearInterval(upInt);
-			upInt=setInterval(function() {if (moveVec.y<=10) {moveVec.y+=.25} else {clearInterval(upInt)}}, 10);
+			accVec.y=.25;
+			upInt=setInterval(function() {if (moveVec.y<=10) {moveVec.y+=accVec.y} else {clearInterval(upInt)}}, 10);
 		}	
 		if(key==65) { //a
 			clearInterval(sideInt);
-			sideInt=setInterval(function() {if (moveVec.x>=-10) {moveVec.x-=.25} else {clearInterval(sideInt)}}, 10);
+			accVec.x=-.25;
+			sideInt=setInterval(function() {if (moveVec.x>=-10) {moveVec.x+=accVec.x} else {clearInterval(sideInt)}}, 10);
 		}	
 		if(key==68) { //d
 			clearInterval(sideInt);
-			sideInt=setInterval(function() {if (moveVec.x<=10) {moveVec.x+=.25} else {clearInterval(sideInt)}}, 10);
+			accVec.x=.25;
+			sideInt=setInterval(function() {if (moveVec.x<=10) {moveVec.x+=accVec.x} else {clearInterval(sideInt)}}, 10);
 		}	
 	}
 	window.onkeyup = function(e) {
 		var key = e.keyCode;
 		if(key==87) { //w
 			clearInterval(upInt);
-			upInt=setInterval(function() {if (moveVec.y<=0) {moveVec.y+=.1} else {moveVec.y=0; clearInterval(upInt)}}, 10);
+			accVec.y=.1;
+			upInt=setInterval(function() {if (moveVec.y<=0) {moveVec.y+=accVec.y} else {moveVec.y=0; clearInterval(upInt)}}, 10);
 		}	
 		if(key==83) { //s
 			clearInterval(upInt);
-			upInt=setInterval(function() {if (moveVec.y>=0) {moveVec.y-=.1} else {moveVec.y=0; clearInterval(upInt)}}, 10);
+			accVec.y=-.1;
+			upInt=setInterval(function() {if (moveVec.y>=0) {moveVec.y+=accVec.y} else {moveVec.y=0; clearInterval(upInt)}}, 10);
 		}	
 		if(key==65) { //a
 			clearInterval(sideInt);
-			sideInt=setInterval(function() {if (moveVec.x<=0) {moveVec.x+=.1} else {moveVec.x=0; clearInterval(sideInt)}}, 10);
+			accVec.x=.1;
+			sideInt=setInterval(function() {if (moveVec.x<=0) {moveVec.x+=accVec.x} else {moveVec.x=0; clearInterval(sideInt)}}, 10);
 		}	
 		if(key==68) { //d
 			clearInterval(sideInt);
-			sideInt=setInterval(function() {if (moveVec.x>=0) {moveVec.x-=.1} else {moveVec.x=0; clearInterval(sideInt)}}, 10);
+			accVec.x=-.1;
+			sideInt=setInterval(function() {if (moveVec.x>=0) {moveVec.x+=accVec.x} else {moveVec.x=0; clearInterval(sideInt)}}, 10);
 		}	
 	}
 })
