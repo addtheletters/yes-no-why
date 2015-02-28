@@ -1,0 +1,42 @@
+<html>
+    <head>
+        <title>Bounce</title>
+    </head>
+    <body>
+
+        <ul id="displist"></ul>
+
+        <script src="https://cdn.socket.io/socket.io-1.2.0.js"></script>
+        <script src="http://code.jquery.com/jquery-1.11.1.js"></script>
+        
+        <script type="text/javascript">
+            var socket = io();
+
+            socket.on('game data', function(data){
+                showMessage("Game data recieved: " + data);
+                displayGame(data);
+            });
+
+            socket.on('disconnect', function(){
+                showMessage("[Socket disconnected! D:]");
+            });
+
+            socket.on('chat message', function(msg){
+                showMessage(msg);
+            });
+            
+            function showMessage(msg){
+                console.log(msg);
+            }
+
+            function sendControlInput( input ){
+                socket.emit('control', input);
+            }
+
+            function displayGame(game_data){
+                $('#displist').append($('<li>').text(game_data));
+            }
+
+        </script>
+    </body>
+</html>
