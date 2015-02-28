@@ -39,7 +39,7 @@ $(window).load(function() {
 		return Math.pi*Math.pow(o.r, 2);
 	}
 	
-	var bounciness = 1;
+	var bounciness = .5;
 	
 	function applyCollision(body1, body2, id1, id2){
 		// elastic collision!
@@ -64,8 +64,8 @@ $(window).load(function() {
 
 		add1 = vec.scale( deltapos,  vec.magnitude(vec.subtract(v1, u1) ));
 		add2 = vec.scale( deltapos, -vec.magnitude(vec.subtract(v2, u2) ));
-		moveVec[id1]=vec.subtract(moveVec[id1], add1);
-		moveVec[id1]=vec.subtract(moveVec[id2], add2);
+		moveVec[id1]=vec.sum(moveVec[id1], add1);
+		moveVec[id2]=vec.sum(moveVec[id2], add2);
 		//body1.addVelocity( vec.subtract(v1, u1) );
 		//body2.addVelocity( vec.subtract(v2, u2) );
 	}
