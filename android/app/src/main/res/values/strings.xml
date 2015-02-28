@@ -4,5 +4,6 @@
     <string name="app_name">Yes-No-Why</string>
     <string name="hello_world">Hello world!</string>
     <string name="action_settings">Settings</string>
+    <string name="title_activity_control_pad">ControlPad</string>
 
 </resources>
