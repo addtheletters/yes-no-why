@@ -1,6 +1,6 @@
-var psc = new PSClient("ws://pilotdcrelay.herokuapp.com","yellow-bag") //replace tall-bird with the UID of the server;
+var psc = new PSClient("ws://pilotdcrelay.herokuapp.com","tall-bunny") //replace tall-bird with the UID of the server;
 
-var clientInfo = {join:true, parentID:null};
+var clientInfo = {join:true, parentID:null, personalID:null};
 
 function death(){
 	// do something
@@ -8,6 +8,16 @@ function death(){
 
 function show(msg){
 	// display the sent info
+	console.log(msg);
+}
+
+function sendInput(psc, accel){
+	psc.send("input " + accel.x + " " + accel.y);
+}
+
+psc.onConnectionFailure = function(){
+	console.log("failed to connect");
+	death();
 }
 
 psc.onData = function(data) {
@@ -17,6 +27,14 @@ psc.onData = function(data) {
 	if(msg[0] == "request"){
 		if(clientInfo.join){
 			psc.send("join " + clientInfo.parentID);
+		}
+	}
+
+	if(msg[0] == "acknowledgement"){
+		if(!clientInfo.parentID){
+			if(msg[2]){
+				clientInfo.personalID = msg[2];
+			}
 		}
 	}
 
@@ -33,8 +51,3 @@ psc.onClose = function(){
 	death();
 }
 
-psc.onQuestion = function(query, callback) {
-	if (query == "are you sure?") {
-		callback("of course!");
-	}
-}

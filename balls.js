@@ -30,17 +30,6 @@ var Ball = function(x, y, radius, color, id){
 		this.vel = vec.sum(this.vel, plusvel);
 	};
 
-function getAllDictElms( tag, dictionary ){
-	var retelms = []
-	for (elm in dictionary) {
-	    if (!dictionary.hasOwnProperty(elm)) {
-	        continue;
-	    }
-	    retelms.push(elm);
-	}
-	return retelms;
-}
-
 function Game(canvas){
 	var self = this;
 
@@ -89,8 +78,6 @@ function Game(canvas){
 
 		self.inputs = {};
 	}
-
-
 
 	self.getCurrentCollisions = function(){
 		var ret = [];
@@ -245,6 +232,6 @@ $(window).load(function() {
 
 	var inputinterval= setInterval(inputCollect, game.dt * 1000);
 
-	
+
 
 });
