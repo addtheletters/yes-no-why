@@ -144,7 +144,9 @@ function Game(canvas, topleft, size, killFunc){
 		self.handleCollisions(self.getCurrentCollisions());
 		for(var i = 0; i < self.balls.length; i++){
 			if(self.shouldKill(self.balls[i])){
-				killFunc(self.balls[i].id);
+				var killed = killFunc(self.balls[i].id);
+				if(killed)
+					continue;
 			}
 			self.balls[i].update(self.dt);
 		}
