@@ -131,10 +131,10 @@ function Game(canvas, topleft, size, killFunc){
 	}
 
 	self.shouldKill = function(ball){
-		if( ball.pos.x < minCoords.x - borderAllowance || ball.pos.x > maxCoords.x + borderAllowance ){
+		if( ball.pos.x < self.minCoords.x - self.borderAllowance || ball.pos.x > self.maxCoords.x + self.borderAllowance ){
 			return true;
 		}
-		if( ball.pos.y < minCoords.y - borderAllowance || ball.pos.y > maxCoords.y + borderAllowance ){
+		if( ball.pos.y < self.minCoords.y - self.borderAllowance || ball.pos.y > self.maxCoords.y + self.borderAllowance ){
 			return true;
 		}
 		return false;	
