@@ -13,7 +13,6 @@ var Ball = function(x, y, radius, color, id, parent){
 	this.parent = parent;
 }
 	Ball.prototype.update = function(delta){
-		this.pos = vec.sum(this.pos, vec.scale(this.vel, delta));
 		var mag = vec.magnitude(this.vel);
 		//console.log(mag);
 		if(mag > 0){
@@ -22,6 +21,7 @@ var Ball = function(x, y, radius, color, id, parent){
 		else{
 			this.vel = vec.createVec();
 		}
+		this.pos = vec.sum(this.pos, vec.scale(this.vel, delta));
 	}
 	Ball.prototype.getTopLeft = function(){
 		return vec.createVec(this.pos.x - this.rad, this.pos.y - this.rad);
