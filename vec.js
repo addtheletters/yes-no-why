@@ -14,6 +14,21 @@ vec.createVec = function(x_component, y_component){
 	}
 }
 
+vec.createVecPolar = function(rad, theta){
+	if(!rad){
+		x_component = 0;
+		y_component = 0;
+	}
+
+	x_component = rad * Math.cos(theta);
+	y_component = rad * Math.sin(theta);
+
+	return {
+		x: x_component,
+		y: y_component
+	}
+}
+
 vec.sum = function ( pt1, pt2 ){
 	return this.createVec( pt1.x + pt2.x, pt1.y + pt2.y );
 }
