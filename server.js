@@ -8,10 +8,20 @@ var Ball = function(x, y, radius, color, id, parent){
 	this.id = id;
 	this.color = color;
 
+	this.drag = 0.01;
+
 	this.parent = parent;
 }
 	Ball.prototype.update = function(delta){
 		this.pos = vec.sum(this.pos, vec.scale(this.vel, delta));
+		var mag = vec.magnitude(this.vel);
+		//console.log(mag);
+		if(mag > 0){
+			this.vel = vec.scale(this.vel, 1-this.drag); //drag
+		}
+		else{
+			this.vel = vec.createVec();
+		}
 	}
 	Ball.prototype.getTopLeft = function(){
 		return vec.createVec(this.pos.x - this.rad, this.pos.y - this.rad);
@@ -31,7 +41,7 @@ var Ball = function(x, y, radius, color, id, parent){
 		this.vel = vec.sum(this.vel, plusvel);
 	};
 
-function Game(canvas, topleft, size){
+function Game(canvas, topleft, size, killFunc){
 	var self = this;
 
 	self.canvas = canvas;
@@ -47,6 +57,10 @@ function Game(canvas, topleft, size){
 	
 	self.minCoords = vec.createVec(topleft.x, topleft.y);
 	self.maxCoords = vec.createVec(size.x, size.y);
+
+	self.killFunc = killFunc;
+
+	self.borderAllowance = 0; // how far out you are allowed to go from the border before getting killed. negative = killed before reaching border
 
 	self.getCenter = function(){
 		return vec.scale( vec.sum(self.minCoords, self.maxCoords), 0.5 );
@@ -126,9 +140,23 @@ function Game(canvas, topleft, size){
 		}
 	}
 
+	self.shouldKill = function(ball){
+		if( ball.pos.x < self.minCoords.x - self.borderAllowance || ball.pos.x > self.maxCoords.x + self.borderAllowance ){
+			return true;
+		}
+		if( ball.pos.y < self.minCoords.y - self.borderAllowance || ball.pos.y > self.maxCoords.y + self.borderAllowance ){
+			return true;
+		}
+		return false;	
+	}
+
 	self.updateWorld = function(){
 		self.handleCollisions(self.getCurrentCollisions());
 		for(var i = 0; i < self.balls.length; i++){
+			if(self.shouldKill(self.balls[i])){
+				killFunc(self.balls[i].id);
+				continue;
+			}
 			self.balls[i].update(self.dt);
 		}
 	}
@@ -220,6 +248,9 @@ function addPlayer(parent, PSC, UID){
 		pos  = parball.pos;
 		color= parball.color;
 		// puts ball next to original, in direction of the center
+		parball.rad = parball.rad * game.splitPenalty;
+		rad  = parball.rad;
+
 		var distCenter = vec.subtract( game.getCenter() , pos );
 		if(vec.magnitudeSquared(distCenter) == 0){
 			pos = vec.sum( pos,  vec.createVecPolar(parball.rad * 2 + splitBufferSize, Math.random() * 2 * Math.PI ) );
@@ -227,8 +258,7 @@ function addPlayer(parent, PSC, UID){
 		else{
 			pos = vec.sum( pos, vec.normalize( distCenter, parball.rad * 2 + splitBufferSize ) );
 		}
-		parball.rad = parball.rad * game.splitPenalty;
-		rad  = parball.rad;
+		
 		parball.fabricObj.radius = parball.rad;
 		
 		vel = vec.createVec(parball.vel.x, parball.vel.y);
@@ -261,12 +291,12 @@ function controlInput(id, msg){
 
 $(window).load( function(){
 
-game = new Game(new fabric.Canvas("c"), vec.createVec(0,0), vec.createVec(1000, 600));
+game = new Game(new fabric.Canvas("c"), vec.createVec(0,0), vec.createVec(1000, 600), function(playerID){ removePlayer(playerID) });
 //game.addBall(120, 120, 20, 'yellow', 0);
 //game.addBall(420, 120, 20, 'green', 1);
 
 gameinterval = game.startGame();
-inputScale = 5;
+inputScale = 3;
 
 pss = new PSServer("ws://pilotdcrelay.herokuapp.com");
 socketToBallID = {}; //{PSC:ball}
