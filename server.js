@@ -31,7 +31,7 @@ var Ball = function(x, y, radius, color, id, parent){
 		this.vel = vec.sum(this.vel, plusvel);
 	};
 
-function Game(canvas, topleft, size){
+function Game(canvas, topleft, size, killFunc){
 	var self = this;
 
 	self.canvas = canvas;
@@ -47,6 +47,10 @@ function Game(canvas, topleft, size){
 	
 	self.minCoords = vec.createVec(topleft.x, topleft.y);
 	self.maxCoords = vec.createVec(size.x, size.y);
+
+	self.killFunc = killFunc;
+
+	self.borderAllowance = 0; // how far out you are allowed to go from the border before getting killed. negative = killed before reaching border
 
 	self.getCenter = function(){
 		return vec.scale( vec.sum(self.minCoords, self.maxCoords), 0.5 );
@@ -126,9 +130,22 @@ function Game(canvas, topleft, size){
 		}
 	}
 
+	self.shouldKill = function(ball){
+		if( ball.pos.x < minCoords.x - borderAllowance || ball.pos.x > maxCoords.x + borderAllowance ){
+			return true;
+		}
+		if( ball.pos.y < minCoords.y - borderAllowance || ball.pos.y > maxCoords.y + borderAllowance ){
+			return true;
+		}
+		return false;	
+	}
+
 	self.updateWorld = function(){
 		self.handleCollisions(self.getCurrentCollisions());
 		for(var i = 0; i < self.balls.length; i++){
+			if(self.shouldKill(self.balls[i])){
+				killFunc(self.balls[i].id);
+			}
 			self.balls[i].update(self.dt);
 		}
 	}
@@ -222,7 +239,7 @@ function addPlayer(parent, PSC, UID){
 		// puts ball next to original, in direction of the center
 		parball.rad = parball.rad * game.splitPenalty;
 		rad  = parball.rad;
-		
+
 		var distCenter = vec.subtract( game.getCenter() , pos );
 		if(vec.magnitudeSquared(distCenter) == 0){
 			pos = vec.sum( pos,  vec.createVecPolar(parball.rad * 2 + splitBufferSize, Math.random() * 2 * Math.PI ) );
@@ -263,7 +280,7 @@ function controlInput(id, msg){
 
 $(window).load( function(){
 
-game = new Game(new fabric.Canvas("c"), vec.createVec(0,0), vec.createVec(1000, 600));
+game = new Game(new fabric.Canvas("c"), vec.createVec(0,0), vec.createVec(1000, 600), function(playerID){ removePlayer(playerID) });
 //game.addBall(120, 120, 20, 'yellow', 0);
 //game.addBall(420, 120, 20, 'green', 1);
 
