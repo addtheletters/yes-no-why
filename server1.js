@@ -3,41 +3,39 @@ var app = require('express')();
 var http = require('http').Server(app);
 var io = require('socket.io')(http);
 
-function initGame(){
-	var game = {name:"IS GAME"};
+function Game(){
+	this.name = "GAMENAME";
 
-	game.dt = 1000 / 1000; // in seconds, time between ticks
-	game.users = [];
-	game.entities = [];
-	game.state = "DEFAULT_STATE";
+	this.dt = 1000 / 1000; // in seconds, time between ticks
+	this.users = [];
+	this.entities = [];
+	this.state = "DEFAULT_STATE";
 
-	game.recieveControl = function(user, input){
+	this.recieveControl = function(user, input){
 		console.log("game (" + this.name + ") recieved input control [" + input + "] from user (" + user + ")");
 		// make control input do something
 	}
 
-	game.getDisplayData = function(){
+	this.getDisplayData = function(){
 		// get game info, displayable by client
 		return this.entities;
 	}
 
-	game.tick = function(){
+	this.tick = function(){
 		// update game state
 		console.log("game state updated");
 		var abla = this.name;
 		io.emit("game data", abla);
 	}
 
-	game.startGame = function(){
+	this.startGame = function(){
 		// start game lol
 		setInterval(this.tick, this.dt*1000);
 	}
-
-	return game;
 }
 
 
-var game = initGame();
+var game = new Game();
 game.startGame();
 
 var sockets = {};

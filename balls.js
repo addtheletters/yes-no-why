@@ -1,108 +1,155 @@
-$(window).load(function() {
-	var canvas = new fabric.Canvas("c");
-	var circle = new fabric.Circle({
-	  radius: 20, fill: 'yellow', left: 100, top: 100
-	});
-	canvas.add(circle);
-	circle.hasControls=false;
-	var circle1 = new fabric.Circle({
-	  radius: 20, fill: 'green', left: 400, top: 100
-	});
-	canvas.add(circle1);
-	circle1.hasControls=false;
-	canvas.renderAll();
-	//circle.animate('top', '+=10', { onChange: canvas.renderAll.bind(canvas) });
 
-	var getCenter = function(o) {
-		return { x: o.left-o.radius,
-				 y: o.top-o.radius,
-				 r: o.radius
-				}
+var Ball = function(x, y, radius, color, id){
+	this.fabricObj = new fabric.Circle({
+		radius: radius, fill: color, left: x - radius, top: y - radius
+	});
+	this.pos = vec.createVec(x, y);
+	this.vel = vec.createVec(0, 0);
+	this.rad = radius;
+	this.id = id;
+	this.color = color;
+}
+	Ball.prototype.update = function(delta){
+		this.pos = vec.sum(this.pos, vec.scale(this.vel, delta));
 	}
-	
-	var getColls = function(id) {
-		objs=canvas.getObjects();
-		colls=[]
-		for (i=0; i<objs.length; i++) {
-				if (i!=id) {
-					var c1=getCenter(objs[i]);
-					var c0=getCenter(objs[id]);
-					if (Math.pow((c1.x-c0.x), 2) + Math.pow((c0.y-c1.y),2) <= Math.pow((c0.r+c1.r),2)) {
-						colls.push(i);
-					}
-				}
+	Ball.prototype.getTopLeft = function(){
+		return vec.createVec(this.pos.x - this.rad, this.pos.y - this.rad);
+	}
+	Ball.prototype.updateFabric = function(){
+		var topleft = this.getTopLeft();
+		this.fabricObj.left = topleft.x;
+		this.fabricObj.top  = topleft.y;
+	}
+	Ball.prototype.getMass = function(){
+		return Math.pi*Math.pow(this.rad, 2);
+	}
+	Ball.prototype.isHittingBall = function(other_ball){
+		return vec.distSquared(this.pos, other_ball.pos) <= Math.pow( this.rad + other_ball.rad, 2 );
+	}
+	Ball.prototype.addVelocity = function( plusvel ) {
+		this.vel = vec.sum(this.vel, plusvel);
+	};
+
+
+function Game(canvas){
+	var self = this;
+
+	self.canvas = canvas;
+	self.name = "Bounce";
+	self.dt = 20 / 1000; // in seconds, time between ticks
+	self.users = [];
+	self.balls = [];
+	self.bounciness = .5;
+
+	self.addBall = function(x, y, radius, color, id){
+		var theBall = new Ball(x, y, radius, color, id);
+		self.balls.push(theBall);
+		self.canvas.add(theBall.fabricObj);
+		theBall.fabricObj.hasControls = false;
+		return theBall;
+	}
+
+	self.applyInputs = function(){
+		//
+		return 0;
+	}
+
+	self.getCurrentCollisions = function(){
+		var ret = [];
+		for(var i = 0; i < self.balls.length; i++){
+			self.balls[i].hit = {};
+			for(var j = 0; j < self.balls.length; j++){
+				self.balls[i].hit[j] = false;
+			}
 		}
-		return colls;
+		for(var i = 0; i < self.balls.length; i++){
+			for(var j = 0; j < self.balls.length; j++){
+				if(i == j){
+					continue;
+				}
+				if(self.balls[i].isHittingBall(self.balls[j]) && !self.balls[j].hit[i]){
+					self.balls[i].hit[j] = true;
+					self.balls[j].hit[i] = true;
+					ret.push([i, j]);
+				}
+			}
+		}
+		return ret;
 	}
-	
-	var getMass = function(o) {
-		return Math.pi*Math.pow(o.r, 2);
-	}
-	
-	var bounciness = .5;
-	
-	function applyCollision(body1, body2, id1, id2){
-		// elastic collision!
 
-		var deltapos = vec.subtract(vec.createVec(body1.x, body1.y), vec.createVec(body2.x, body2.y));
+	self.handleCollisions = function(collisions){
+		console.log("handling collisions " + collisions);
+		for(var i = 0; i < collisions.length; i++){
+			self.applyCollision(self.balls[collisions[i][0]], self.balls[collisions[i][1]]);
+		}
+	}
+
+	self.updateWorld = function(){
+		self.handleCollisions(self.getCurrentCollisions());
+		for(var i = 0; i < self.balls.length; i++){
+			self.balls[i].update(self.dt);
+		}
+	}
+
+	self.renderGame = function(){
+		for(var i = 0; i < self.balls.length; i++){
+			self.balls[i].updateFabric();
+		}
+		self.canvas.renderAll();
+	}
+
+	self.tick = function(){
+		self.applyInputs();
+		self.updateWorld();
+		self.renderGame();
+	}
+
+	self.startGame = function(){
+		return setInterval(self.tick, self.dt*1000);
+	}
+
+	self.applyCollision = function(body1, body2){
+		// elastic collision!
+		var deltapos = vec.subtract(body1.pos, body2.pos);
 		while( vec.magnitudeSquared(deltapos) == 0 ){
 			deltapos = vec.createVec(Math.random()-0.5, Math.random()-0.5);
 		}
 		deltapos = vec.normalize(deltapos); // to a unit direction vector
 		// getting components of velocity parallel to collision direction
-		var parallel1mag = vec.dotProd(moveVec[id1], deltapos); 
-		var parallel2mag = vec.dotProd(moveVec[id2], deltapos);
+		var parallel1mag = vec.dotProd(body1.vel, deltapos); 
+		var parallel2mag = vec.dotProd(body2.vel, deltapos);
 
 		var u1 = vec.normalize(deltapos, -parallel1mag);
 		var u2 = vec.normalize(deltapos, parallel2mag);
 
-		var v1 = vec.scale( vec.sum( vec.scale(u1, getMass(body1) - getMass(body2)) , vec.scale( u2, 2*getMass(body2) ) ),
-			bounciness* 1/(getMass(body1) + getMass(body2)) );
+		var v1 = vec.scale( vec.sum( vec.scale(u1, body1.getMass() - body2.getMass()) , vec.scale( u2, 2*body2.getMass() ) ),
+			self.bounciness* 1/(body1.getMass() + body2.getMass()) );
 
-		var v2 = vec.scale( vec.sum( vec.scale(u2, getMass(body2) - getMass(body1)) , vec.scale( u1, 2*getMass(body1) ) ),
-			bounciness* 1/(getMass(body1) + getMass(body2)) );
+		var v2 = vec.scale( vec.sum( vec.scale(u2, body2.getMass() - body1.getMass()) , vec.scale( u1, 2*body1.getMass() ) ),
+			self.bounciness* 1/(body1.getMass() + body2.getMass()) );
 
-		add1 = vec.scale( deltapos,  vec.magnitude(vec.subtract(v1, u1) ));
-		add2 = vec.scale( deltapos, -vec.magnitude(vec.subtract(v2, u2) ));
-		moveVec[id1]=vec.sum(moveVec[id1], add1);
-		moveVec[id2]=vec.sum(moveVec[id2], add2);
-		//body1.addVelocity( vec.subtract(v1, u1) );
-		//body2.addVelocity( vec.subtract(v2, u2) );
+		body1.addVelocity(  vec.scale( deltapos,  vec.magnitude(vec.subtract(v1, u1) ))  );
+		body2.addVelocity(  vec.scale( deltapos, -vec.magnitude(vec.subtract(v2, u2) ))  );
 	}
-	
-	id=0;
-	var active=canvas.getObjects()[id];
-	objs=canvas.getObjects();
-	moveVec=[0, 0]
-	accVec=[0, 0]
-	moveVec[0]=vec.createVec(0, 0);
-	accVec[0]=vec.createVec(0, 0);
-	moveInterval=setInterval(function() {active.left+=moveVec[0].x; 
-										 active.top+=moveVec[0].y; 
-										 collided=getColls(id);
-										 if (collided.length>0){
-											for (c in collided) {
-												applyCollision(getCenter(active), getCenter(objs[collided[c]]), id, collided[c]);
-											}
-										 }
-										 
-										 //moveVec.x+=accVec.x;
-										 //moveVec.y+=accVec.y;
-										 canvas.renderAll();}, 10);
-	var active1=canvas.getObjects()[id+1];
-	moveVec[1]=vec.createVec(0, 0);
-	accVec[1]=vec.createVec(0, 0);
-	moveInterval1=setInterval(function() {active1.left+=moveVec[1].x; 
-										 active1.top+=moveVec[1].y; 
-										 collided=getColls(id+1);
-										 if (collided.length>0){
-											for (c in collided) {
-												applyCollision(getCenter(active1), getCenter(objs[collided[c]]), id+1, collided[c]);
-											}
-										 }
-										 //moveVec.x+=accVec.x;
-										 //moveVec.y+=accVec.y;
-										 canvas.renderAll();}, 10);
+}
+
+
+
+$(window).load(function() {
+	var game = new Game(new fabric.Canvas("c"));
+	game.addBall(120, 120, 20, 'yellow', 0);
+	game.addBall(420, 120, 20, 'green', 0);
+
+	interval = game.startGame();
+
+	window.onkeydown = function(e){
+		var key = e.keyCode;
+		if(key == 87){
+			game.balls[0].addVelocity(vec.createVec(20, 0));
+		}
+	}
+
+/*
 
 	upInt=0;
 	sideInt=0;
@@ -194,5 +241,5 @@ $(window).load(function() {
 			accVec[1].x=-.1;
 			sideInt1=setInterval(function() {if (moveVec[1].x>=0) {moveVec[1].x+=accVec[1].x} else {moveVec[1].x=0;}}, 10);
 		}	
-	}
-})
+	}*/
+});
