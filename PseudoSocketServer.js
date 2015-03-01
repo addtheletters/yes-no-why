@@ -94,6 +94,8 @@ PSCallback.prototype.onmessage = function(data) {
 			}
 			break;
 		case "req":
+			console.log("Req: object keys is" + Object.keys(this.ps.clients));
+			console.log(this.ps.clients);
 			if (Object.keys(this.ps.clients).length < 999) {
 				this.ps.clients[tag] = new PSC(tag,this.ps);
 				this.ps.ws.send("acc "+tag+" true");
