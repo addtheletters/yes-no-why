@@ -5,6 +5,10 @@
 	<script src='fabric.js'></script>
 	<script src='vec.js'></script>
 	<style type="text/css">
+		body{
+			font-family:monospace;
+			font-size: 13px;
+		}
 		canvas {
 			border: 1px solid #000000;
 			text-align : center;
@@ -13,7 +17,9 @@
 	<script src='PseudoSocketServer.js'></script>
 	<script src='server.js'></script>
 	</head>
-	<body>
+	<body onload='document.getElementById("servername").innerHTML = PSS.UID'>
+		<h1>Bounce In!</h1>
+		<h4 id='servername'></h4>
 		<canvas id="c" width='1000px' height='600px'>
 		Your browser does not support the HTML5 canvas tag.
 		</canvas>
