@@ -182,9 +182,9 @@ function Game(canvas, topleft, size, killFunc){
 			self.balls[i].updateFabric();
 		}
 		for(var i = 0; i < self.messages.length; i++){
-			if(self.messages[i].opacity > 0){
+			if(self.messages[i].opacity > 0.1){
 				console.log(self.messages[i].opacity);
-				self.messages[i].opacity -= 0.1;
+				self.messages[i].opacity -= 0.01;
 			}
 		}
 		self.canvas.renderAll();
