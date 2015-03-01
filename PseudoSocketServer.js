@@ -104,6 +104,7 @@ PSCallback.prototype.onmessage = function(data) {
 				}
 
 			} else {
+				console.log("failure");
 				this.ps.ws.send("acc "+tag+" false");
 			}
 			break
