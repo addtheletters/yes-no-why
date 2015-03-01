@@ -1,6 +1,7 @@
 
 PSServer = function(address) {
 	var that = this
+	this.connect = false;
 
 	this.UID = null;
 	this.hrt = null;
