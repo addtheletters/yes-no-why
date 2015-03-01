@@ -190,9 +190,8 @@ function Game(canvas){
 
 		var v2 = vec.scale( vec.sum( vec.scale(u2, body2.getMass() - body1.getMass()) , vec.scale( u1, 2*body1.getMass() ) ),
 			self.bounciness* 1/(body1.getMass() + body2.getMass()) );
-
-		body1.addVelocity(  vec.scale( deltapos,  vec.magnitude(vec.subtract(v1, u1) ))  );
-		body2.addVelocity(  vec.scale( deltapos, -vec.magnitude(vec.subtract(v2, u2) ))  );
+		body1.addVelocity(  vec.scale( deltapos,  vec.magnitude(vec.subtract(v1, u2) )*1.5) );
+		body2.addVelocity(  vec.scale( deltapos, -vec.magnitude(vec.subtract(v2, u1) )*1.5)  );
 	}
 }
 
