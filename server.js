@@ -93,7 +93,7 @@ function Game(canvas, topleft, size, killFunc){
 		  top: pos.y - 20
 		});
 		self.canvas.add(text);
-		messages.push(text);
+		self.messages.push(text);
 	}
 
 	self.findBallById = function(id){
