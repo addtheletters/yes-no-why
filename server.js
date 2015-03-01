@@ -8,7 +8,7 @@ var Ball = function(x, y, radius, color, id, parent){
 	this.id = id;
 	this.color = color;
 
-	this.drag = 0.01;
+	this.drag = 0.05;
 
 	this.parent = parent;
 }
