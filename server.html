@@ -6,18 +6,18 @@
 	<script src='vec.js'></script>
 	<style type="text/css">
 		body{
+			text-align : center;
 			font-family:monospace;
 			font-size: 13px;
 		}
 		canvas {
 			border: 1px solid #000000;
-			text-align : center;
 		}
 	</style>
 	<script src='PseudoSocketServer.js'></script>
 	<script src='server.js'></script>
 	</head>
-	<body onload='document.getElementById("servername").innerHTML = PSS.UID'>
+	<body onload='document.getElementById("servername").innerHTML = pss.UID'>
 		<h1>Bounce In!</h1>
 		<h4 id='servername'></h4>
 		<hr>
