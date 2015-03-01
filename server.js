@@ -51,7 +51,7 @@ function Game(canvas, topleft, size, killFunc){
 	self.balls = [];
 	self.inputs = {};
 
-	self.defaultRad = 10;
+	self.defaultRad = 20;
 	self.bounciness = .5;
 	self.splitPenalty = 0.7;
 	
@@ -295,12 +295,12 @@ function controlInput(id, msg){
 
 $(window).load( function(){
 
-game = new Game(new fabric.Canvas("c"), vec.createVec(0,0), vec.createVec(1000, 600), function(playerID){ removePlayer(playerID) });
+game = new Game(new fabric.Canvas("c"), vec.createVec(0,0), vec.createVec(1000, 500), function(playerID){ removePlayer(playerID) });
 //game.addBall(120, 120, 20, 'yellow', 0);
 //game.addBall(420, 120, 20, 'green', 1);
 
 gameinterval = game.startGame();
-inputScale = 3;
+inputScale = 2;
 
 pss = new PSServer("ws://pilotdcrelay.herokuapp.com");
 socketToBallID = {}; //{PSC:ball}
