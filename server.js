@@ -56,6 +56,12 @@ function Game(canvas, topleft, size){
 		return theBall;
 	}
 
+	self.removeBall = function(id){
+		var ball = self.balls.splice( self.balls.indexOf(self.findBallById(id)), 1 )[0];
+		canvas.remove(ball.fabricObj);
+		return ball;
+	}
+
 	self.findBallById = function(id){
 		for(var i = 0; i < self.balls.length; i++){
 			if(id == self.balls[i].id){
@@ -164,24 +170,15 @@ function Game(canvas, topleft, size){
 	}
 }
 
-$(window).load( function(){
+var game;
+var gameinterval;
 
-var game = new Game(new fabric.Canvas("c"), vec.createVec(0,0), vec.createVec(1000, 600));
-//game.addBall(120, 120, 20, 'yellow', 0);
-//game.addBall(420, 120, 20, 'green', 1);
+var pss;
+var socketToBallID = {}; //{PSC:ball}
+var ballIDToSocket = {}; //{ball:PSC}
 
-var gameinterval = game.startGame();
-var inputScale = 5;
-
-var pss = new PSServer("ws://pilotdcrelay.herokuapp.com");
-var players = {}; //{PSC:ball}
-
-var colors = ['blue', 'green', 'red', 'yellow', 'magenta', 'cyan'];
-var colorUses = [0, 0, 0, 0, 0, 0];
-
-function uniqueID(){
-  	return '_' + Math.random().toString(36).substr(2, 9);
-}
+var colors;//= ['blue', 'green', 'red', 'yellow', 'magenta', 'cyan'];
+var colorUses;// = [0, 0, 0, 0, 0, 0];
 
 function randStartPos(){
 	var dcoords = vec.subtract( game.maxCoords, game.minCoords );
@@ -198,13 +195,12 @@ function invalidParent(parent){
 	return !parent || parent=="null";
 }
 
-function addPlayer(parent){
-	var id = uniqueID();
+function addPlayer(parent, PSC, UID){
 	var pos;
 	var ball;
 	var color;
 	var rad;
-	if(invalidParent()){
+	if(invalidParent(parent)){
 		pos = randStartPos();
 		color = randRareColor();
 		rad = game.defaultRad;
@@ -219,8 +215,18 @@ function addPlayer(parent){
 		parball.rad = parball.rad * game.splitPenalty;
 		rad  = parball.rad;
 	}
-	ball = game.addBall( pos.x, pos.y, rad, color, id, parent);
-	return id;
+	ball = game.addBall( pos.x, pos.y, rad, color, UID, parent);
+	socketToBallID[PSC] = UID;
+	ballIDToSocket[UID] = PSC;
+	return ball;
+}
+
+function removePlayer(playerID){
+	game.removeBall(playerID);
+	if(pss.clients[playerID]){
+		pss.clients[playerID] = null;
+		//pss.clients[playerID].ws.close();
+	}
 }
 
 function controlInput(id, msg){
@@ -228,12 +234,33 @@ function controlInput(id, msg){
 	game.pushInput(id, vec.createVec(Number(msg[1]), Number(msg[2])));
 }
 
+
+$(window).load( function(){
+
+game = new Game(new fabric.Canvas("c"), vec.createVec(0,0), vec.createVec(1000, 600));
+//game.addBall(120, 120, 20, 'yellow', 0);
+//game.addBall(420, 120, 20, 'green', 1);
+
+gameinterval = game.startGame();
+inputScale = 5;
+
+pss = new PSServer("ws://pilotdcrelay.herokuapp.com");
+socketToBallID = {}; //{PSC:ball}
+ballIDToSocket = {}; //{ball:PSC}
+
+colors = ['blue', 'green', 'red', 'yellow', 'magenta', 'cyan'];
+colorUses = [0, 0, 0, 0, 0, 0];
+
+/*function uniqueID(){
+  	return '_' + Math.random().toString(36).substr(2, 9);
+}*/
+
+
+
 pss.onName = function(UID){
 	console.log("pss.UID = "+UID);
 }
 pss.onConnect = function(PSC) { //PseudoSocketConnection
-
-	var id;
 
 	console.log(PSC.UID+" connected!")
 
@@ -249,20 +276,20 @@ pss.onConnect = function(PSC) { //PseudoSocketConnection
 		
 		if (msg[0] == "join"){
 			console.log("attempting to add player");
-			id = addPlayer(msg[1]);
-			PSC.send("acknowledgement sucessful-connect " + id);
+			addPlayer(msg[1], PSC, PSC.UID);
+			PSC.send("acknowledgement sucessful-connect " + PSC.UID);
 		}
 
 		if (msg[0] == "input"){
-			controlInput(msg);
+			controlInput( PSC.UID, msg );
 		}
 	}
 
 	PSC.onClose = function() {
 		console.log(PSC.UID+" disconnected!");
-		console.log("Remaining Clients ",pss.clients)
+		removePlayer(PSC.UID);
+		console.log("Remaining Clients ", pss.clients)
 	}
 
 }
-
 });

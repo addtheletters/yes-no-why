@@ -1,4 +1,4 @@
-var psc = new PSClient("ws://pilotdcrelay.herokuapp.com","tall-bunny") //replace tall-bird with the UID of the server;
+var psc = new PSClient("ws://pilotdcrelay.herokuapp.com","short-pillow") //replace tall-bird with the UID of the server;
 
 var clientInfo = {join:true, parentID:null, personalID:null};
 
