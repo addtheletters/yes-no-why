@@ -321,7 +321,7 @@ game = new Game(new fabric.Canvas("c"), vec.createVec(0,0), vec.createVec(1000, 
 //game.addBall(420, 120, 20, 'green', 1);
 
 gameinterval = game.startGame();
-inputScale = 3;
+inputScale = 1;
 
 pss = new PSServer("ws://pilotdcrelay.herokuapp.com");
 socketToBallID = {}; //{PSC:ball}
