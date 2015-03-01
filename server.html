@@ -5,16 +5,38 @@
 	<script src='fabric.js'></script>
 	<script src='vec.js'></script>
 	<style type="text/css">
+		body{
+			text-align : center;
+			font-family:monospace;
+			font-size: 13px;
+		}
+		.centered{
+			position: relative;
+			max-width: 1000px;
+		    height: auto;
+		    margin: auto;
+		    padding: 10px;
+		    text-align: center;
+		}
 		canvas {
 			border: 1px solid #000000;
+			
 		}
 	</style>
 	<script src='PseudoSocketServer.js'></script>
 	<script src='server.js'></script>
 	</head>
 	<body>
-		<canvas id="c" width='1000px' height='600px'>
-		Your browser does not support the HTML5 canvas tag.
-		</canvas>
+		<h1>Bounce In!</h1>
+		<h4 id='servername'></h4>
+		<hr>
+		<div class='centered'>
+			<canvas id="c" width='1000px' height='600px'>
+			Your browser does not support the HTML5 canvas tag.
+			</canvas>
+		</div>
+		<script type="text/javascript">
+			setInterval(function(){document.getElementById("servername").innerHTML = pss.UID}, 1000);
+		</script>
 	</body>
 </html>

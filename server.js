@@ -278,8 +278,10 @@ function addPlayer(parent, PSC, UID){
 }
 
 function removePlayer(playerID){
+	console.log("Player " + playerID + "has been removed.");
 	game.removeBall(playerID);
 	if(pss.clients[playerID]){
+		pss.clients[playerID].send("death");
 		pss.clients[playerID] = null;
 		//pss.clients[playerID].ws.close();
 	}
