@@ -225,7 +225,9 @@ function randRareColor(){
 }
 
 function invalidParent(parent){
-	return !parent || parent=="null";
+	if(!parent || parent=="null"){
+		return true;
+	}
 }
 
 function addPlayer(parent, PSC, UID){
