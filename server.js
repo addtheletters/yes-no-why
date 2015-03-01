@@ -8,13 +8,14 @@ var Ball = function(x, y, radius, color, id, parent){
 	this.id = id;
 	this.color = color;
 
-	this.drag = 0.1;
+	this.drag = 0.01;
 
 	this.parent = parent;
 }
 	Ball.prototype.update = function(delta){
 		this.pos = vec.sum(this.pos, vec.scale(this.vel, delta));
 		var mag = vec.magnitude(this.vel);
+		//console.log(mag);
 		if(mag > 0){
 			this.vel = vec.scale(this.vel, 1-this.drag); //drag
 		}
