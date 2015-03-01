@@ -99,8 +99,7 @@ public class MainActivity extends ActionBarActivity {
         try {
             PseudoSocketClient pss = new PseudoSocketClient(new URI("ws://pilotdcrelay.herokuapp.com"), hostname, new MyCallback(this));
             pss.connect();
-            ((MyCallback)pss.psc).friend = starterFriend;
-            pss.psc.onData("startGame");
+            pss.psc.onData("startGame "+starterFriend);
         } catch (URISyntaxException e) {
             // TODO Auto-generated catch block
             e.printStackTrace();

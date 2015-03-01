@@ -17,8 +17,8 @@
         android:theme="@style/Theme.AppCompat.Light" >
 
         <activity
-            android:name=".WHYCANTIRUNNFCINMAINACTIVITYActivity"
-            android:label="@string/title_activity_real_main" >
+            android:name=".BounceInActivity"
+            android:label="Bounce In" >
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 

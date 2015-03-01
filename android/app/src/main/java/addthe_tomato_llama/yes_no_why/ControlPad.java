@@ -81,7 +81,7 @@ public class ControlPad extends LimitedActivity implements NfcAdapter.CreateNdef
             public void run() {
                 //Log.d("PSS","Fetching PSC Fixed Rate");
                 if (psc != null) {
-                    psc.send("input " + view.getXx() + " " + view.getYy());
+                    psc.sendData("input " + view.getXx() + " " + view.getYy());
                 } else {
                     psc = ((MyApplication)that.getApplication()).getPSC();
                 }
@@ -161,7 +161,7 @@ public class ControlPad extends LimitedActivity implements NfcAdapter.CreateNdef
 
     @Override
     public NdefMessage createNdefMessage(NfcEvent event) {
-        String text = (psc.UID);
+        String text = psc.host+" "+(psc.UID);
         NdefMessage msg = new NdefMessage(
                 new NdefRecord[] { createMime(
                         "application/vnd.com.example.android.beam", text.getBytes())

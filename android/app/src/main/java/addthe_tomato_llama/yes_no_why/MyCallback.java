@@ -41,16 +41,19 @@ public class MyCallback extends PseudoSocketCallback {
 		}*/
         PseudoSocketClient psc = ((MyApplication)parent.getApplication()).getPSC();
 
-		if (msg.equals("startGame")) {
+        String[] data = msg.split(" ");
+
+		if (data[0].equals("startGame")) {
+            friend = data[1];
 			Intent intent = new Intent(parent, ControlPad.class);
 			Log.d("FnF", "Starting ControlPad");
 			parent.startActivity(intent);
 		}
 
-        String[] data = msg.split(" ");
-
-        if (data[0].equals("request"))
-            psc.send("join" +  friend);
+        if (data[0].equals("request")){
+            Log.d("sent",friend);
+            psc.sendData("join " +  friend);
+        }
         if(data[0] == "acknowledgement"){
             Log.d("yay", "good");
         }
