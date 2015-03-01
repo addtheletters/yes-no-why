@@ -295,7 +295,7 @@ function controlInput(id, msg){
 
 $(window).load( function(){
 
-game = new Game(new fabric.Canvas("c"), vec.createVec(0,0), vec.createVec(1000, 400), function(playerID){ removePlayer(playerID) });
+game = new Game(new fabric.Canvas("c"), vec.createVec(0,0), vec.createVec(1000, 500), function(playerID){ removePlayer(playerID) });
 //game.addBall(120, 120, 20, 'yellow', 0);
 //game.addBall(420, 120, 20, 'green', 1);
 
