@@ -17,12 +17,15 @@
 	<script src='PseudoSocketServer.js'></script>
 	<script src='server.js'></script>
 	</head>
-	<body onload='document.getElementById("servername").innerHTML = pss.UID'>
+	<body>
 		<h1>Bounce In!</h1>
 		<h4 id='servername'></h4>
 		<hr>
 		<canvas id="c" width='1000px' height='600px'>
 		Your browser does not support the HTML5 canvas tag.
 		</canvas>
+		<script type="text/javascript">
+			setInterval(function(){document.getElementById("servername").innerHTML = pss.UID}, 1000);
+		</script>
 	</body>
 </html>
