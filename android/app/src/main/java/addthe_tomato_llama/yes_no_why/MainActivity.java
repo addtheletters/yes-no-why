@@ -19,8 +19,10 @@ import android.os.Bundle;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.View;
 import android.view.animation.AlphaAnimation;
 import android.view.animation.Animation;
+import android.widget.EditText;
 import android.widget.TextView;
 import android.content.IntentFilter.MalformedMimeTypeException;
 
@@ -35,17 +37,23 @@ import org.apache.http.message.BasicNameValuePair;
 import org.w3c.dom.Text;
 
 import java.io.IOException;
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.List;
+
+import addthe_tomato_llama.yes_no_why.zwad3.PseudoSocket.PseudoSocketClient;
 
 import static android.nfc.NdefRecord.createMime;
 
 
-public class MainActivity extends ActionBarActivity implements CreateNdefMessageCallback {
+public class MainActivity extends ActionBarActivity {
 
     public static final String TAG = "NfcDemo";
     TextView waitView;
     NfcAdapter mNfcAdapter;
+    String hostname ;
+    String starterFriend;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -63,7 +71,7 @@ public class MainActivity extends ActionBarActivity implements CreateNdefMessage
         mNfcAdapter = adapter;
         if (adapter != null && adapter.isEnabled()) {
             // adapter exists and is enabled.
-          startActivity(new Intent(this, ControlPad.class));
+            //startActivity(new Intent(this, ControlPad.class));
 
         }
         else{
@@ -81,30 +89,25 @@ public class MainActivity extends ActionBarActivity implements CreateNdefMessage
 
         //handleIntent(getIntent());
 
-        adapter.setNdefPushMessageCallback(this, this);
-
         //waitView.getAnimation().cancel();
     }
 
-    @Override
-    public NdefMessage createNdefMessage(NfcEvent event) {
-        String text = ("Beam me up, Android!\n\n" +
-                "Beam Time: " + System.currentTimeMillis());
-        NdefMessage msg = new NdefMessage(
-                new NdefRecord[] { createMime(
-                        "application/vnd.com.example.android.beam", text.getBytes())
-                        /**
-                         * The Android Application Record (AAR) is commented out. When a device
-                         * receives a push with an AAR in it, the application specified in the AAR
-                         * is guaranteed to run. The AAR overrides the tag dispatch system.
-                         * You can add it back in to guarantee that this
-                         * activity starts when receiving a beamed message. For now, this code
-                         * uses the tag dispatch system.
-                         */
-                        //,NdefRecord.createApplicationRecord("com.example.android.beam")
-                });
-        return msg;
+    public void connect(View v) {
+        Log.d("PSS", "button clicked");
+        EditText entry = (EditText)findViewById(R.id.hostname);
+        hostname = entry.getText().toString() != null? entry.getText().toString() : hostname;
+        try {
+            PseudoSocketClient pss = new PseudoSocketClient(new URI("ws://pilotdcrelay.herokuapp.com"),starterFriend, hostname, new MyCallback(this));
+            pss.connect();
+            pss.psc.onData("startGame");
+        } catch (URISyntaxException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+            Log.d("PSS","Something bork");
+        }
     }
+
+
 
     @Override
     public void onResume() {
@@ -125,13 +128,17 @@ public class MainActivity extends ActionBarActivity implements CreateNdefMessage
      * Parses the NDEF Message from the intent and prints to the TextView
      */
     void processIntent(Intent intent) {
-        TextView thinhg = (TextView)findViewById(R.id.Icrievariteim);
+
         Parcelable[] rawMsgs = intent.getParcelableArrayExtra(
                 NfcAdapter.EXTRA_NDEF_MESSAGES);
         // only one message sent during the beam
         NdefMessage msg = (NdefMessage) rawMsgs[0];
-        // record 0 contains the MIME type, record 1 is the AAR, if present
-        thinhg.setText(new String(msg.getRecords()[0].getPayload()));
+        String[] data = new String(msg.getRecords()[0].getPayload()).split(" ");
+
+        hostname = data[0];
+        starterFriend = data[1];
+
+        connect(null);
     }
 /*
     @Override

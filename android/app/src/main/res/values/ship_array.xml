@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string-array name="ship_array">
+        <item>Klingon</item>
+        <item>Hyotl</item>
+        <item>Borg</item>
+    </string-array>
+</resources>

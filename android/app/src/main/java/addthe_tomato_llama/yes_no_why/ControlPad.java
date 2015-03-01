@@ -1,5 +1,6 @@
 package addthe_tomato_llama.yes_no_why;
 
+import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -10,31 +11,86 @@ import android.nfc.NfcEvent;
 import android.os.Parcelable;
 import android.support.v7.app.ActionBarActivity;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.MotionEvent;
+import android.view.View;
+import android.view.Window;
+import android.widget.EditText;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 
-import addthe_tomato_llama.yes_no_why.JoyStick_declanshanaghy.JoystickMovedListener;
-import addthe_tomato_llama.yes_no_why.JoyStick_declanshanaghy.JoystickView;
+import java.net.URI;
+import java.net.URISyntaxException;
+import java.util.Timer;
+import java.util.TimerTask;
+
+
+import addthe_tomato_llama.yes_no_why.zwad3.PseudoSocket.PseudoSocketClient;
 
 import static android.nfc.NdefRecord.createMime;
 
 
-public class ControlPad extends ActionBarActivity implements NfcAdapter.CreateNdefMessageCallback {
+public class ControlPad extends LimitedActivity implements NfcAdapter.CreateNdefMessageCallback {
 
+    private InterfaceView view;
+    private LinearLayout ll;
+    private PseudoSocketClient psc;
+    private boolean newInst = true;
+
+    private Timer t;
     TextView txtX, txtY;
-    JoystickView joystick;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+        //requestWindowFeature(Window.FEATURE_NO_TITLE);
         setContentView(R.layout.activity_control_pad);
+
+
+
+        view = new InterfaceView(this);
+        ll = new LinearLayout(this);
+        ll.addView(view);
+
+        final Activity that = this;
+        view.setOnTouchListener(new View.OnTouchListener() {
+            @Override
+            public boolean onTouch(View v, MotionEvent event) {
+                view.onMotionEvent(v,event);
+                if (psc != null) {
+                    //psc.sendData("set "+(event.getX()/view.getWidth())+" "+(event.getY()/view.getHeight()));
+                } else {
+                    psc = ((MyApplication)that.getApplication()).getPSC();
+                    Log.d("PSS","Fetching PSC - dis: "+ view.getDist() + ", ang: " + view.getAngle());
+                }
+                return true;
+            }
+        });
+
+        t = new Timer();
+        t.scheduleAtFixedRate(new TimerTask() {
+
+            @Override
+            public void run() {
+                Log.d("PSS","Fetching PSC Fixed Rate");
+                if (psc != null) {
+                    psc.sendData("ang="+view.getAngle()+";pow="+view.getDist());
+                } else {
+                    psc = ((MyApplication)that.getApplication()).getPSC();
+                }
+            }
+
+        }, 0, 200);
+
+        setContentView(ll);
+
+        newInst = false;
 
         txtX = (TextView)findViewById(R.id.TextViewX);
         txtY = (TextView)findViewById(R.id.TextViewY);
-        joystick = (JoystickView)findViewById(R.id.joystickView);
-
-        joystick.setOnJostickMovedListener(_listener);
 
 
         NfcAdapter adapter = NfcAdapter.getDefaultAdapter(this);
@@ -52,48 +108,39 @@ public class ControlPad extends ActionBarActivity implements NfcAdapter.CreateNd
 
         adapter.setNdefPushMessageCallback(this, this);
 
+
     }
-    private JoystickMovedListener _listener = new JoystickMovedListener() {
-
-        @Override
-        public void OnMoved(int pan, int tilt) {
-            txtX.setText(Integer.toString(pan));
-            txtY.setText(Integer.toString(tilt));
-        }
-
-        @Override
-        public void OnReleased() {
-            txtX.setText("released");
-            txtY.setText("released");
-        }
-
-        public void OnReturnedToCenter() {
-            txtX.setText("stopped");
-            txtY.setText("stopped");
-        };
-    };
-
     @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        // Inflate the menu; this adds items to the action bar if it is present.
-        getMenuInflater().inflate(R.menu.menu_control_pad, menu);
-        return true;
+    protected void onPause() {
+        super.onPause();
+        if (t != null) {
+            t.cancel();
+            t = null;
+        }
     }
 
     @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        // Handle action bar item clicks here. The action bar will
-        // automatically handle clicks on the Home/Up button, so long
-        // as you specify a parent activity in AndroidManifest.xml.
-        int id = item.getItemId();
-
-        //noinspection SimplifiableIfStatement
-        if (id == R.id.action_settings) {
-            return true;
-        }
-
-        return super.onOptionsItemSelected(item);
+    protected void onSaveInstanceState(Bundle b) {
+        super.onSaveInstanceState(b);
+        b.putBoolean("new", newInst);
     }
+/*
+    public void connect(View v) {
+        Log.d("PSS", "button clicked");
+        //EditText entry = (EditText)findViewById(R.id.hostname);
+        String hostname="";
+        try {
+            PseudoSocketClient pss = new PseudoSocketClient(new URI("ws://pilotdcrelay.herokuapp.com"), hostname, new MyCallback(this));
+            pss.connect();
+        } catch (URISyntaxException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+            Log.d("PSS","Something bork");
+        }
+    }
+
+*/
+
     @Override
     public NdefMessage createNdefMessage(NfcEvent event) {
         String text = ("Beam me up, Android!\n\n" +
@@ -118,9 +165,7 @@ public class ControlPad extends ActionBarActivity implements NfcAdapter.CreateNd
     public void onResume() {
         super.onResume();
         // Check to see that the Activity started due to an Android Beam
-        if (NfcAdapter.ACTION_NDEF_DISCOVERED.equals(getIntent().getAction())) {
-            processIntent(getIntent());
-        }
+
     }
 
     @Override
@@ -129,16 +174,5 @@ public class ControlPad extends ActionBarActivity implements NfcAdapter.CreateNd
         setIntent(intent);
     }
 
-    /**
-     * Parses the NDEF Message from the intent and prints to the TextView
-     */
-    void processIntent(Intent intent) {
-        TextView thinhg = (TextView)findViewById(R.id.textView);
-        Parcelable[] rawMsgs = intent.getParcelableArrayExtra(
-                NfcAdapter.EXTRA_NDEF_MESSAGES);
-        // only one message sent during the beam
-        NdefMessage msg = (NdefMessage) rawMsgs[0];
-        // record 0 contains the MIME type, record 1 is the AAR, if present
-        thinhg.setText(new String(msg.getRecords()[0].getPayload()));
-    }
+
 }
