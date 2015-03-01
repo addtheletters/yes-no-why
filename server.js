@@ -205,6 +205,8 @@ function addPlayer(parent, PSC, UID){
 	var ball;
 	var color;
 	var rad;
+	var vel = vec.createVec();
+
 	if(invalidParent(parent)){
 		pos = randStartPos();
 		color = randRareColor();
@@ -229,6 +231,7 @@ function addPlayer(parent, PSC, UID){
 		rad  = parball.rad;
 		parball.fabricObj.radius = parball.rad;
 		
+		vel = vec.createVec(parball.vel.x, parball.vel.y);
 
 		console.log("parball");
 		console.log(parball.pos);
