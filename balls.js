@@ -30,23 +30,6 @@ var Ball = function(x, y, radius, color, id){
 		this.vel = vec.sum(this.vel, plusvel);
 	};
 
-/*
-//scrapped
-var AccelerationInput = function(id, accel){
-	this.id = id;
-	this.accel = accel; // vector
-}
-	AccelerationInput.prototype.applyTo = function(game){
-		var ball = game.findBallById(id);
-		if(ball){
-			ball.addVelocity(accel);
-		}
-		else{
-			console.log("Failed to apply input to ball id " + id);
-		}
-	}
-*/
-
 function getAllDictElms( tag, dictionary ){
 	var retelms = []
 	for (elm in dictionary) {
@@ -105,14 +88,6 @@ function Game(canvas){
 		}
 
 		self.inputs = {};
-
-		/*
-		for(var i = 0; i < self.inputs.length; i++){
-			console.log("applying input effect " + self.inputs[i]);
-			self.inputs[i].applyTo(self);
-		}
-		console.log(self.inputs.length + " inputs applied.");
-		*/
 	}
 
 
@@ -270,97 +245,6 @@ $(window).load(function() {
 
 	var inputinterval= setInterval(inputCollect, game.dt * 1000);
 
-/*
-
-	upInt=0;
-	sideInt=0;
-	upInt1=0;
-	sideInt1=0;
 	
-	window.onkeydown = function(e) {
-		var key = e.keyCode;
-		if(key==87) { //w
-			clearInterval(upInt);
-			accVec[0].y=-.25;
-			upInt=setInterval(function() {if (moveVec[0].y>=-10) {moveVec[0].y+=accVec[0].y} else {clearInterval(upInt)} }, 10);
-		}	
-		if(key==83) { //s
-			clearInterval(upInt);
-			accVec[0].y=.25;
-			upInt=setInterval(function() {if (moveVec[0].y<=10) {moveVec[0].y+=accVec[0].y} else {clearInterval(upInt)}}, 10);
-		}	
-		if(key==65) { //a
-			clearInterval(sideInt);
-			accVec[0].x=-.25;
-			sideInt=setInterval(function() {if (moveVec[0].x>=-10) {moveVec[0].x+=accVec[0].x} else {clearInterval(sideInt)}}, 10);
-		}	
-		if(key==68) { //d
-			clearInterval(sideInt);
-			accVec[0].x=.25;
-			sideInt=setInterval(function() {if (moveVec[0].x<=10) {moveVec[0].x+=accVec[0].x} else {clearInterval(sideInt)}}, 10);
-		}	
-		if(key==38) { //up
-			clearInterval(upInt1);
-			accVec[1].y=-.25;
-			upInt1=setInterval(function() {if (moveVec[1].y>=-10) {moveVec[1].y+=accVec[1].y} else {clearInterval(upInt1)} }, 10);
-		}	
-		if(key==40) { //down
-			clearInterval(upInt1);
-			accVec[1].y=.25;
-			upInt1=setInterval(function() {if (moveVec[1].y<=10) {moveVec[1].y+=accVec[1].y} else {clearInterval(upInt1)}}, 10);
-		}	
-		if(key==37) { //left
-			clearInterval(sideInt1);
-			accVec[1].x=-.25;
-			sideInt1=setInterval(function() {if (moveVec[1].x>=-10) {moveVec[1].x+=accVec[1].x} else {clearInterval(sideInt1)}}, 10);
-		}	
-		if(key==39) { //right
-			clearInterval(sideInt1);
-			accVec[1].x=.25;
-			sideInt1=setInterval(function() {if (moveVec[1].x<=10) {moveVec[1].x+=accVec[1].x} else {clearInterval(sideInt1)}}, 10);
-		}	
-	}
-	window.onkeyup = function(e) {
-		var key = e.keyCode;
-		if(key==87) { //w
-			clearInterval(upInt);
-			accVec[0].y=.1;
-			upInt=setInterval(function() {if (moveVec[0].y<=0) {moveVec[0].y+=accVec[0].y} else {moveVec[0].y=0;}}, 10);
-		}	
-		if(key==83) { //s
-			clearInterval(upInt);
-			accVec[0].y=-.1;
-			upInt=setInterval(function() {if (moveVec[0].y>=0) {moveVec[0].y+=accVec[0].y} else {moveVec[0].y=0;}}, 10);
-		}	
-		if(key==65) { //a
-			clearInterval(sideInt);
-			accVec[0].x=.1;
-			sideInt=setInterval(function() {if (moveVec[0].x<=0) {moveVec[0].x+=accVec[0].x} else {moveVec[0].x=0;}}, 10);
-		}	
-		if(key==68) { //d
-			clearInterval(sideInt);
-			accVec[0].x=-.1;
-			sideInt=setInterval(function() {if (moveVec[0].x>=0) {moveVec[0].x+=accVec[0].x} else {moveVec[0].x=0;}}, 10);
-		}	
-		if(key==38) { //up
-			clearInterval(upInt1);
-			accVec[1].y=.1;
-			upInt1=setInterval(function() {if (moveVec[1].y<=0) {moveVec[1].y+=accVec[1].y} else {moveVec[1].y=0;}}, 10);
-		}	
-		if(key==40) { //down
-			clearInterval(upInt1);
-			accVec[1].y=-.1;
-			upInt1=setInterval(function() {if (moveVec[1].y>=0) {moveVec[1].y+=accVec[1].y} else {moveVec[1].y=0;}}, 10);
-		}	
-		if(key==37) { //left
-			clearInterval(sideInt1);
-			accVec[1].x=.1;
-			sideInt1=setInterval(function() {if (moveVec[1].x<=0) {moveVec[1].x+=accVec[1].x} else {moveVec[1].x=0;}}, 10);
-		}	
-		if(key==39) { //right
-			clearInterval(sideInt1);
-			accVec[1].x=-.1;
-			sideInt1=setInterval(function() {if (moveVec[1].x>=0) {moveVec[1].x+=accVec[1].x} else {moveVec[1].x=0;}}, 10);
-		}	
-	}*/
+
 });
