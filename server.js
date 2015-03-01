@@ -220,6 +220,9 @@ function addPlayer(parent, PSC, UID){
 		pos  = parball.pos;
 		color= parball.color;
 		// puts ball next to original, in direction of the center
+		parball.rad = parball.rad * game.splitPenalty;
+		rad  = parball.rad;
+		
 		var distCenter = vec.subtract( game.getCenter() , pos );
 		if(vec.magnitudeSquared(distCenter) == 0){
 			pos = vec.sum( pos,  vec.createVecPolar(parball.rad * 2 + splitBufferSize, Math.random() * 2 * Math.PI ) );
@@ -227,8 +230,7 @@ function addPlayer(parent, PSC, UID){
 		else{
 			pos = vec.sum( pos, vec.normalize( distCenter, parball.rad * 2 + splitBufferSize ) );
 		}
-		parball.rad = parball.rad * game.splitPenalty;
-		rad  = parball.rad;
+		
 		parball.fabricObj.radius = parball.rad;
 		
 		vel = vec.createVec(parball.vel.x, parball.vel.y);
