@@ -51,6 +51,8 @@ function Game(canvas, topleft, size, killFunc){
 	self.balls = [];
 	self.inputs = {};
 
+	self.messages = [];
+
 	self.defaultRad = 20;
 	self.bounciness = .5;
 	self.splitPenalty = 0.7;
@@ -76,8 +78,22 @@ function Game(canvas, topleft, size, killFunc){
 
 	self.removeBall = function(id){
 		var ball = self.balls.splice( self.balls.indexOf(self.findBallById(id)), 1 )[0];
-		canvas.remove(ball.fabricObj);
+		self.canvas.remove(ball.fabricObj);
+
+		self.showElimination(ball.pos);
+
 		return ball;
+	}
+
+	self.showElimination = function(pos){
+		var text = new fabric.Text('Dead!', { 
+		  fontFamily: 'Monospace',
+		  fill:'red', 
+		  left: pos.x - 20, 
+		  top: pos.y - 20
+		});
+		self.canvas.add(text);
+		messages.push(text);
 	}
 
 	self.findBallById = function(id){
@@ -164,6 +180,11 @@ function Game(canvas, topleft, size, killFunc){
 	self.renderGame = function(){
 		for(var i = 0; i < self.balls.length; i++){
 			self.balls[i].updateFabric();
+		}
+		for(var i = 0; i < self.messages.length; i++){
+			if(self.messages[i].opacity > 0.1){
+				self.messages[i].opacity -= 0.02;
+			}
 		}
 		self.canvas.renderAll();
 	}
