@@ -230,6 +230,11 @@ function addPlayer(parent, PSC, UID){
 		parball.fabricObj.radius = parball.rad;
 		rad  = parball.rad;
 	}
+	console.log("parball");
+	console.log(parball.pos);
+	console.log("childball");
+	console.log(pos);
+	
 	ball = game.addBall( pos.x, pos.y, rad, color, UID, parent);
 	socketToBallID[PSC] = UID;
 	ballIDToSocket[UID] = PSC;
