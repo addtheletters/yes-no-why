@@ -24,6 +24,8 @@ public class InterfaceView extends SurfaceView {
 	
 	private double theta = 0;
 	private double dist = 0;
+    private double Xx = 0;
+    private double Yy = 0;
 	
 	private Bitmap button;
 	private Bitmap circle;
@@ -116,6 +118,9 @@ public class InterfaceView extends SurfaceView {
 	public double getDist() {
 		return dist;
 	}
+
+    public double getXx(){ return Xx;}
+    public double getYy(){ return Yy;}
 	
 	public String actionToString(int action) {
 	    switch (action) {
@@ -184,6 +189,8 @@ public class InterfaceView extends SurfaceView {
 				dist = thresh;
 				
 			}
+            Yy = fy-y;
+            Xx = fx - x;
 			dist /= thresh;
 			theta = Math.atan2(fy-y, fx-x);
 		}

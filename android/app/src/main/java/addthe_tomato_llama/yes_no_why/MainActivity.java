@@ -53,7 +53,7 @@ public class MainActivity extends ActionBarActivity {
     TextView waitView;
     NfcAdapter mNfcAdapter;
     String hostname ;
-    String starterFriend;
+    String starterFriend = "null";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -97,8 +97,9 @@ public class MainActivity extends ActionBarActivity {
         EditText entry = (EditText)findViewById(R.id.hostname);
         hostname = entry.getText().toString() != null? entry.getText().toString() : hostname;
         try {
-            PseudoSocketClient pss = new PseudoSocketClient(new URI("ws://pilotdcrelay.herokuapp.com"),starterFriend, hostname, new MyCallback(this));
+            PseudoSocketClient pss = new PseudoSocketClient(new URI("ws://pilotdcrelay.herokuapp.com"), hostname, new MyCallback(this));
             pss.connect();
+            ((MyCallback)pss.psc).friend = starterFriend;
             pss.psc.onData("startGame");
         } catch (URISyntaxException e) {
             // TODO Auto-generated catch block
@@ -134,6 +135,8 @@ public class MainActivity extends ActionBarActivity {
         // only one message sent during the beam
         NdefMessage msg = (NdefMessage) rawMsgs[0];
         String[] data = new String(msg.getRecords()[0].getPayload()).split(" ");
+
+        waitView.setText(data[0]+"  111");
 
         hostname = data[0];
         starterFriend = data[1];

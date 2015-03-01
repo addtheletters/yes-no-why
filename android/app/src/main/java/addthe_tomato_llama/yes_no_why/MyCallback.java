@@ -12,6 +12,7 @@ import addthe_tomato_llama.yes_no_why.zwad3.PseudoSocket.PseudoSocketCallback;
 public class MyCallback extends PseudoSocketCallback {
 	
 	private Activity parent;
+    public String friend;
 	
 	public MyCallback(Activity a) {
 		parent = a;
@@ -38,11 +39,28 @@ public class MyCallback extends PseudoSocketCallback {
 			Intent intent = new Intent(parent, PromptActivity.class);
 			parent.startActivity(intent);
 		}*/
+        PseudoSocketClient psc = ((MyApplication)parent.getApplication()).getPSC();
+
 		if (msg.equals("startGame")) {
 			Intent intent = new Intent(parent, ControlPad.class);
 			Log.d("FnF", "Starting ControlPad");
 			parent.startActivity(intent);
 		}
+
+        String[] data = msg.split(" ");
+
+        if (data[0].equals("request"))
+            psc.send("join" +  friend);
+        if(data[0] == "acknowledgement"){
+            Log.d("yay", "good");
+        }
+
+        if(data[0] == "death"){
+            Log.d("redkt", "Ggg");
+            //death();
+        }
+
+
 	}
 	
 	public void onClose() {

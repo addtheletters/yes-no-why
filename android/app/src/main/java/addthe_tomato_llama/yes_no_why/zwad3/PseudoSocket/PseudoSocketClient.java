@@ -8,12 +8,10 @@ import org.java_websocket.client.WebSocketClient;
 import org.java_websocket.handshake.ServerHandshake;
 
 import android.util.Log;
-
 public class PseudoSocketClient extends WebSocketClient {
 
     public  String 				      host;
     public  String  			      UID;
-    public  String                    startFriend;
     public  String 				      address;
     public  int   			          state;
     public 	boolean                   hasConnected = false;
@@ -27,10 +25,9 @@ public class PseudoSocketClient extends WebSocketClient {
         return ""+(tag++);
     }
 
-    public PseudoSocketClient(URI serverURI, String hostname, String startFriend, PseudoSocketCallback psc) {
+    public PseudoSocketClient(URI serverURI, String hostname, PseudoSocketCallback psc) {
         super(serverURI);
         this.host = hostname;
-        this.startFriend = startFriend;
         this.psc = psc;
         psc.registerOwner(this);
         Log.d("PSS","instantiated");
@@ -52,7 +49,7 @@ public class PseudoSocketClient extends WebSocketClient {
     }
 
     public void connectToHost() {
-        send("req "+UID+"-"+((startFriend!=null && startFriend.equals(""))? startFriend:0) +" "+host);
+        send("req "+UID+" "+host);
     }
 
     public void stopHeartbeat() {
@@ -61,8 +58,6 @@ public class PseudoSocketClient extends WebSocketClient {
             tim = null;
         }
     }
-
-
 
     public void ask(Question a) {
         String tag = genTag();
@@ -74,11 +69,9 @@ public class PseudoSocketClient extends WebSocketClient {
 
     public void sendData(String data) {
         if (state == 1) {
-            send("tel "+host+" "+UID+", "+ data);
+            send("tel "+host+" "+data);
         }
     }
-
-
 
     @Override
     public void onClose(int arg0, String arg1, boolean arg2) {
@@ -100,12 +93,8 @@ public class PseudoSocketClient extends WebSocketClient {
         arg0.printStackTrace();
     }
 
-
     @Override
     public void onMessage(String datum) {
-
-        //when got message, follow this chain?
-
         String[] msg = datum.split(" ");
         String cmd = msg[0];
         String tag = msg[1];
@@ -136,15 +125,14 @@ public class PseudoSocketClient extends WebSocketClient {
                 break;
             case "frm":
                 if (tag.equals(this.host)) {
-                    //this.psc.onData(data);
+                    this.psc.onData(data);
                 }
                 break;
             case "ans":
-                /*
                 if (qdest.equals(this.host)) {
                     questions.get(tag).response(qdata);
                     questions.remove(tag);
-                }*/
+                }
                 break;
             case "brk":
                 if (hasConnected) {
