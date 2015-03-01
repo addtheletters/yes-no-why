@@ -30,6 +30,33 @@ var Ball = function(x, y, radius, color, id){
 		this.vel = vec.sum(this.vel, plusvel);
 	};
 
+/*
+//scrapped
+var AccelerationInput = function(id, accel){
+	this.id = id;
+	this.accel = accel; // vector
+}
+	AccelerationInput.prototype.applyTo = function(game){
+		var ball = game.findBallById(id);
+		if(ball){
+			ball.addVelocity(accel);
+		}
+		else{
+			console.log("Failed to apply input to ball id " + id);
+		}
+	}
+*/
+
+function getAllDictElms( tag, dictionary ){
+	var retelms = []
+	for (elm in dictionary) {
+	    if (!dictionary.hasOwnProperty(elm)) {
+	        continue;
+	    }
+	    retelms.push(elm);
+	}
+	return retelms;
+}
 
 function Game(canvas){
 	var self = this;
@@ -40,6 +67,7 @@ function Game(canvas){
 	self.users = [];
 	self.balls = [];
 	self.bounciness = .5;
+	self.inputs = {};
 
 	self.addBall = function(x, y, radius, color, id){
 		var theBall = new Ball(x, y, radius, color, id);
@@ -49,10 +77,45 @@ function Game(canvas){
 		return theBall;
 	}
 
-	self.applyInputs = function(){
-		//
-		return 0;
+	self.findBallById = function(id){
+		for(var i = 0; i < self.balls.length; i++){
+			if(id == self.balls[i].id){
+				return self.balls[i];
+			}
+		}
+		return null;
 	}
+
+	self.pushInput = function(id, accel){
+		self.inputs[id] = accel;
+	}
+
+	self.applyInputs = function(){
+		// inputs is structure {id:accel}
+		for(possibleID in self.inputs){
+			if (self.inputs.hasOwnProperty(possibleID)) {
+		        var ball = self.findBallById(possibleID);
+				if(ball){
+					ball.addVelocity(self.inputs[possibleID]);
+				}
+				else{
+					//console.log("Failed to apply input to ball id " + possibleID);
+				}
+		    }
+		}
+
+		self.inputs = {};
+
+		/*
+		for(var i = 0; i < self.inputs.length; i++){
+			console.log("applying input effect " + self.inputs[i]);
+			self.inputs[i].applyTo(self);
+		}
+		console.log(self.inputs.length + " inputs applied.");
+		*/
+	}
+
+
 
 	self.getCurrentCollisions = function(){
 		var ret = [];
@@ -78,7 +141,7 @@ function Game(canvas){
 	}
 
 	self.handleCollisions = function(collisions){
-		console.log("handling collisions " + collisions);
+		//console.log("handling collisions " + collisions);
 		for(var i = 0; i < collisions.length; i++){
 			self.applyCollision(self.balls[collisions[i][0]], self.balls[collisions[i][1]]);
 		}
@@ -133,21 +196,80 @@ function Game(canvas){
 	}
 }
 
+var keyEnum = {
+	W_Key:87,
+	S_Key:83,
+	D_Key:68,
+	A_Key:65,
+	Up_Key:38,
+	Down_Key:40,
+	Left_Key:37,
+	Right_Key:39,
+};
+
+var keyState = {};
+
+window.onkeydown = function(e){
+	keyState[e.keyCode] = true;
+}
+window.onkeyup = function(e){
+	keyState[e.keyCode] = false;
+}
+
+function isKeyDown(keyCode){
+	return keyState[keyCode];
+}
 
 
 $(window).load(function() {
 	var game = new Game(new fabric.Canvas("c"));
 	game.addBall(120, 120, 20, 'yellow', 0);
-	game.addBall(420, 120, 20, 'green', 0);
+	game.addBall(420, 120, 20, 'green', 1);
 
-	interval = game.startGame();
+	var gameinterval = game.startGame();
+	var inputScale = 5;
 
-	window.onkeydown = function(e){
-		var key = e.keyCode;
-		if(key == 87){
-			game.balls[0].addVelocity(vec.createVec(20, 0));
+	function inputCollect(){
+		//console.log("HELLOOOO");
+
+		var p0NetInput = vec.createVec(0, 0);
+		if(isKeyDown(keyEnum.W_Key)){
+			p0NetInput = vec.sum(p0NetInput, vec.createVec(0, -1));
+		}
+		if(isKeyDown(keyEnum.S_Key)){
+			p0NetInput = vec.sum(p0NetInput, vec.createVec(0, 1));
+		}
+		if(isKeyDown(keyEnum.A_Key)){
+			p0NetInput = vec.sum(p0NetInput, vec.createVec(-1, 0));
+		}
+		if(isKeyDown(keyEnum.D_Key)){
+			p0NetInput = vec.sum(p0NetInput, vec.createVec(1, 0));
+		}
+		//console.log(p0NetInput.x, p0NetInput.y);
+		if(vec.magnitudeSquared(p0NetInput) != 0){
+			game.pushInput(0, vec.normalize(p0NetInput, inputScale));
+		}
+
+		var p1NetInput = vec.createVec(0, 0);
+		if(isKeyDown(keyEnum.Up_Key)){
+			p1NetInput = vec.sum(p1NetInput, vec.createVec(0, -1));
+		}
+		if(isKeyDown(keyEnum.Down_Key)){
+			p1NetInput = vec.sum(p1NetInput, vec.createVec(0, 1));
+		}
+		if(isKeyDown(keyEnum.Left_Key)){
+			p1NetInput = vec.sum(p1NetInput, vec.createVec(-1, 0));
+		}
+		if(isKeyDown(keyEnum.Right_Key)){
+			p1NetInput = vec.sum(p1NetInput, vec.createVec(1, 0));
+		}
+		//console.log(p0NetInput.x, p0NetInput.y);
+		if(vec.magnitudeSquared(p1NetInput) != 0){
+			game.pushInput(1, vec.normalize(p1NetInput, inputScale));
 		}
 	}
+
+	var inputinterval= setInterval(inputCollect, game.dt * 1000);
 
 /*
 
