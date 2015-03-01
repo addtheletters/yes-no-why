@@ -57,7 +57,7 @@ public class MyCallback extends PseudoSocketCallback {
 
         if(data[0] == "death"){
             Log.d("redkt", "Ggg");
-            //death();
+            ((ControlPad)parent).death();
         }
 
 

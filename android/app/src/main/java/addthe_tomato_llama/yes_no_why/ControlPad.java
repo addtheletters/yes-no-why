@@ -4,6 +4,7 @@ import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.graphics.Color;
 import android.nfc.NdefMessage;
 import android.nfc.NdefRecord;
 import android.nfc.NfcAdapter;
@@ -17,8 +18,11 @@ import android.view.MenuItem;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.Window;
+import android.view.animation.AlphaAnimation;
+import android.view.animation.Animation;
 import android.widget.EditText;
 import android.widget.LinearLayout;
+import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import java.net.URI;
@@ -77,7 +81,7 @@ public class ControlPad extends LimitedActivity implements NfcAdapter.CreateNdef
             public void run() {
                 //Log.d("PSS","Fetching PSC Fixed Rate");
                 if (psc != null) {
-                    psc.send("input "+view.getXx() + " " + view.getYy());
+                    psc.send("input " + view.getXx() + " " + view.getYy());
                 } else {
                     psc = ((MyApplication)that.getApplication()).getPSC();
                 }
@@ -140,6 +144,20 @@ public class ControlPad extends LimitedActivity implements NfcAdapter.CreateNdef
     }
 
 */
+
+    public void death(){
+        view.setOnTouchListener(null);
+        RelativeLayout lays = (RelativeLayout)findViewById(R.id.thingLayout);
+        TextView wasted = new TextView(this);
+        wasted.setText("Wasted");
+        wasted.setTextSize(50);
+        wasted.setTextColor(Color.RED);
+        lays.addView(wasted,5);
+        Animation anim = new AlphaAnimation(0.0f, 1.0f);
+        anim.setDuration(500); //You can manage the blinking time with this parameter
+        anim.setStartOffset(20);
+        wasted.startAnimation(anim);
+    }
 
     @Override
     public NdefMessage createNdefMessage(NfcEvent event) {
