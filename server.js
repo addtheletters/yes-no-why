@@ -350,4 +350,8 @@ pss.onConnect = function(PSC) { //PseudoSocketConnection
 	}
 
 }
+pss.onConnectionFailure = function(){
+	console.log("failed to connect to master");
+}
+
 });
