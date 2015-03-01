@@ -94,7 +94,7 @@ PSCallback.prototype.onmessage = function(data) {
 			}
 			break;
 		case "req":
-			if (Object.keys(this.ps.clients).length < 4) {
+			if (Object.keys(this.ps.clients).length < 999) {
 				this.ps.clients[tag] = new PSC(tag,this.ps);
 				this.ps.ws.send("acc "+tag+" true");
 				if (this.ps.onConnect) {
