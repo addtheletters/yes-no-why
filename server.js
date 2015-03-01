@@ -48,6 +48,10 @@ function Game(canvas, topleft, size){
 	self.minCoords = vec.createVec(topleft.x, topleft.y);
 	self.maxCoords = vec.createVec(size.x, size.y);
 
+	self.getCenter = function(){
+		return vec.scale( vec.sum(self.minCoords, self.maxCoords), 0.5 );
+	}
+
 	self.addBall = function(x, y, radius, color, id, parent){
 		var theBall = new Ball(x, y, radius, color, id, parent);
 		self.balls.push(theBall);
@@ -174,11 +178,12 @@ var game;
 var gameinterval;
 
 var pss;
-var socketToBallID = {}; //{PSC:ball}
-var ballIDToSocket = {}; //{ball:PSC}
+var socketToBallID ;//= {}; //{PSC:ball}
+var ballIDToSocket ;//= {}; //{ball:PSC}
 
 var colors;//= ['blue', 'green', 'red', 'yellow', 'magenta', 'cyan'];
 var colorUses;// = [0, 0, 0, 0, 0, 0];
+var splitBufferSize;
 
 function randStartPos(){
 	var dcoords = vec.subtract( game.maxCoords, game.minCoords );
@@ -211,8 +216,18 @@ function addPlayer(parent, PSC, UID){
 		console.log("parent at id " + parent);
 		console.log(parball);
 		pos  = parball.pos;
+
+		// puts ball next to original, in direction of the center
+		var distCenter = vec.subtract( game.getCenter() , pos );
+		if(vec.magnitudeSquared(distCenter) == 0){
+			pos = vec.sum( pos,  vec.createVecPolar(rad * 2 + splitBufferSize, Math.random() * 2 * Math.PI ) );
+		}
+		else{
+			pos = vec.sum( pos, vec.normalize( distCenter, rad * 2 + splitBufferSize ) );
+		}
 		color= parball.color;
 		parball.rad = parball.rad * game.splitPenalty;
+		parball.fabricObj.radius = parball.rad;
 		rad  = parball.rad;
 	}
 	ball = game.addBall( pos.x, pos.y, rad, color, UID, parent);
@@ -250,6 +265,8 @@ ballIDToSocket = {}; //{ball:PSC}
 
 colors = ['blue', 'green', 'red', 'yellow', 'magenta', 'cyan'];
 colorUses = [0, 0, 0, 0, 0, 0];
+
+splitBufferSize = 2;
 
 /*function uniqueID(){
   	return '_' + Math.random().toString(36).substr(2, 9);
