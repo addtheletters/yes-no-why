@@ -183,7 +183,8 @@ function Game(canvas, topleft, size, killFunc){
 		}
 		for(var i = 0; i < self.messages.length; i++){
 			if(self.messages[i].opacity > 0.1){
-				self.messages[i].opacity -= 0.02;
+				console.log(self.messages[i].opacity);
+				self.messages[i].opacity -= 0.1;
 			}
 		}
 		self.canvas.renderAll();
