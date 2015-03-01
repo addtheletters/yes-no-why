@@ -96,9 +96,15 @@ public class MainActivity extends ActionBarActivity {
         Log.d("PSS", "button clicked");
         EditText entry = (EditText)findViewById(R.id.hostname);
         hostname = entry.getText().toString() != null? entry.getText().toString() : hostname;
+        Log.d("hostname is ", hostname);
+        establishConnection();
+    }
+
+    public void establishConnection(){
         try {
             PseudoSocketClient pss = new PseudoSocketClient(new URI("ws://pilotdcrelay.herokuapp.com"), hostname, new MyCallback(this));
             pss.connect();
+            Log.d("supposed friend", starterFriend);
             pss.psc.onData("startGame "+starterFriend);
         } catch (URISyntaxException e) {
             // TODO Auto-generated catch block
@@ -139,8 +145,10 @@ public class MainActivity extends ActionBarActivity {
 
         hostname = data[0];
         starterFriend = data[1];
+        Log.d("bff", starterFriend);
+        Log.d("host", hostname);
 
-        connect(null);
+        establishConnection();
     }
 /*
     @Override

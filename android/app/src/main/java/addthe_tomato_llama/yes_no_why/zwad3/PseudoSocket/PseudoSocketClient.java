@@ -109,7 +109,7 @@ public class PseudoSocketClient extends WebSocketClient {
             qdata+=msg[i]+" ";
         }
         qdata+=msg[msg.length-1];
-        Log.d("PSS","Received: "+data);
+        Log.d("PSS","Received: "+datum);
         switch (cmd) {
             case "uid":
                 this.UID = data;
