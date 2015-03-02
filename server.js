@@ -15,12 +15,14 @@ var Ball = function(x, y, radius, color, id, parent){
 	Ball.prototype.update = function(delta){
 		var mag = vec.magnitude(this.vel);
 		//console.log(mag);
+
 		if(mag > 0){
 			this.vel = vec.scale(this.vel, 1-this.drag); //drag
 		}
 		else{
 			this.vel = vec.createVec();
 		}
+
 		this.pos = vec.sum(this.pos, vec.scale(this.vel, delta));
 	}
 	Ball.prototype.getTopLeft = function(){
@@ -41,6 +43,20 @@ var Ball = function(x, y, radius, color, id, parent){
 		this.vel = vec.sum(this.vel, plusvel);
 	};
 
+	Ball.prototype.isTBot = function(canvasmax){
+		return this.pos.y + this.rad >= canvasmax.y;
+	}
+	Ball.prototype.isTTop = function(canvasmin){
+		return this.pos.y - this.rad <= canvasmin.y;
+	}
+	Ball.prototype.isTRight = function(canvasmax){
+		return this.pos.x + this.rad >= canvasmax.x;
+	}
+	Ball.prototype.isTLeft = function(canvasmin){
+		return this.pos.x - this.rad <= canvasmin.x;
+	}
+
+
 function Game(canvas, topleft, size, killFunc){
 	var self = this;
 
@@ -56,6 +72,7 @@ function Game(canvas, topleft, size, killFunc){
 	self.defaultRad = 20;
 	self.bounciness = .5;
 	self.splitPenalty = 0.7;
+	self.borderWalls = true;
 	
 	self.minCoords = vec.createVec(topleft.x, topleft.y);
 	self.maxCoords = vec.createVec(size.x, size.y);
@@ -173,7 +190,36 @@ function Game(canvas, topleft, size, killFunc){
 				killFunc(self.balls[i].id);
 				continue;
 			}
+			self.checkWalls(self.balls[i]);
 			self.balls[i].update(self.dt);
+		}
+	}
+
+	self.checkWalls = function(ball){
+		if(self.borderWalls){
+			if(ball.isTBot(vec.createVec(1000, 500)) && ball.vel.y > 0){
+				//console.log("bounce bot");
+				ball.vel.y = -1 * ball.vel.y * this.bounciness;
+				ball.pos.y  =  500 - ball.rad ;
+			}
+
+			if(ball.isTTop(vec.createVec(0, 0)) && ball.vel.y < 0){
+				//console.log("bounce top");
+				ball.vel.y = -1 * ball.vel.y * this.bounciness;
+				ball.pos.y =  ball.rad ;
+			}
+
+			if( ball.isTLeft(vec.createVec(0,0)) && ball.vel.x < 0 ){
+				//console.log("bounce left");
+				ball.vel.x = -1 * ball.vel.x * this.bounciness;
+				ball.pos.x 	= ball.rad ;
+			}
+
+			if( ball.isTRight(vec.createVec(1000, 500)) && ball.vel.x > 0 ){
+				//console.log("bounce right");
+				ball.vel.x = -1 * ball.vel.x * this.bounciness;
+				ball.pos.x 	= 1000 - ball.rad ;
+			}
 		}
 	}
 
